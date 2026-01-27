@@ -1,14 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { MatchService } from './match.service';
-import {
-  MATCH_REPOSITORY,
-  IMatchRepository,
-} from './repositories/match.repository.interface';
+import { MATCH_REPOSITORY } from './repositories/match.repository.interface';
 
 describe('MatchService', () => {
   let service: MatchService;
-  let repository: jest.Mocked<IMatchRepository>;
+
+  const mockRepository = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findById: jest.fn(),
+    findByPlayerId: jest.fn(),
+    delete: jest.fn(),
+    softDeleteByPlayerId: jest.fn(),
+  };
 
   const mockMatch = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -20,19 +25,12 @@ describe('MatchService', () => {
   };
 
   beforeEach(async () => {
-    repository = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findById: jest.fn(),
-      findByPlayerId: jest.fn(),
-      delete: jest.fn(),
-      softDeleteByPlayerId: jest.fn(),
-    };
+    jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MatchService,
-        { provide: MATCH_REPOSITORY, useValue: repository },
+        { provide: MATCH_REPOSITORY, useValue: mockRepository },
       ],
     }).compile();
 
@@ -42,18 +40,18 @@ describe('MatchService', () => {
   describe('create', () => {
     it('should create a match', async () => {
       const playerIds = ['player-1', 'player-2'];
-      repository.create.mockResolvedValue(mockMatch);
+      mockRepository.create.mockResolvedValue(mockMatch);
 
       const result = await service.create({ playerIds });
 
-      expect(repository.create).toHaveBeenCalledWith(playerIds);
+      expect(mockRepository.create).toHaveBeenCalledWith(playerIds);
       expect(result).toEqual(mockMatch);
     });
   });
 
   describe('findAll', () => {
     it('should return all matches', async () => {
-      repository.findAll.mockResolvedValue([mockMatch]);
+      mockRepository.findAll.mockResolvedValue([mockMatch]);
 
       const result = await service.findAll();
 
@@ -63,7 +61,7 @@ describe('MatchService', () => {
 
   describe('findById', () => {
     it('should return a match', async () => {
-      repository.findById.mockResolvedValue(mockMatch);
+      mockRepository.findById.mockResolvedValue(mockMatch);
 
       const result = await service.findById(mockMatch.id);
 
@@ -71,7 +69,7 @@ describe('MatchService', () => {
     });
 
     it('should throw NotFoundException if not found', async () => {
-      repository.findById.mockResolvedValue(null);
+      mockRepository.findById.mockResolvedValue(null);
 
       await expect(service.findById('invalid-id')).rejects.toThrow(
         NotFoundException,
@@ -81,7 +79,7 @@ describe('MatchService', () => {
 
   describe('findByPlayerId', () => {
     it('should return matches for a player', async () => {
-      repository.findByPlayerId.mockResolvedValue([mockMatch]);
+      mockRepository.findByPlayerId.mockResolvedValue([mockMatch]);
 
       const result = await service.findByPlayerId('player-1');
 
@@ -91,13 +89,13 @@ describe('MatchService', () => {
 
   describe('delete', () => {
     it('should delete a match', async () => {
-      repository.delete.mockResolvedValue(true);
+      mockRepository.delete.mockResolvedValue(true);
 
       await expect(service.delete(mockMatch.id)).resolves.toBeUndefined();
     });
 
     it('should throw NotFoundException if not found', async () => {
-      repository.delete.mockResolvedValue(false);
+      mockRepository.delete.mockResolvedValue(false);
 
       await expect(service.delete('invalid-id')).rejects.toThrow(
         NotFoundException,
@@ -107,7 +105,7 @@ describe('MatchService', () => {
 
   describe('deleteByPlayerId', () => {
     it('should delete matches by player id', async () => {
-      repository.softDeleteByPlayerId.mockResolvedValue(3);
+      mockRepository.softDeleteByPlayerId.mockResolvedValue(3);
 
       const result = await service.deleteByPlayerId('player-1');
 

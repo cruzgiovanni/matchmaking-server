@@ -1,14 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { PlayerService } from './player.service';
-import {
-  PLAYER_REPOSITORY,
-  IPlayerRepository,
-} from './repositories/player.repository.interface';
+import { PLAYER_REPOSITORY } from './repositories/player.repository.interface';
 
 describe('PlayerService', () => {
   let service: PlayerService;
-  let repository: jest.Mocked<IPlayerRepository>;
+
+  const mockRepository = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findById: jest.fn(),
+    findByNickname: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  };
 
   const mockPlayer = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -20,19 +25,12 @@ describe('PlayerService', () => {
   };
 
   beforeEach(async () => {
-    repository = {
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findById: jest.fn(),
-      findByNickname: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    };
+    jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlayerService,
-        { provide: PLAYER_REPOSITORY, useValue: repository },
+        { provide: PLAYER_REPOSITORY, useValue: mockRepository },
       ],
     }).compile();
 
@@ -41,8 +39,8 @@ describe('PlayerService', () => {
 
   describe('create', () => {
     it('should create a player', async () => {
-      repository.findByNickname.mockResolvedValue(null);
-      repository.create.mockResolvedValue(mockPlayer);
+      mockRepository.findByNickname.mockResolvedValue(null);
+      mockRepository.create.mockResolvedValue(mockPlayer);
 
       const result = await service.create({ nickname: 'TestPlayer', level: 5 });
 
@@ -50,7 +48,7 @@ describe('PlayerService', () => {
     });
 
     it('should throw ConflictException if nickname exists', async () => {
-      repository.findByNickname.mockResolvedValue(mockPlayer);
+      mockRepository.findByNickname.mockResolvedValue(mockPlayer);
 
       await expect(
         service.create({ nickname: 'TestPlayer', level: 5 }),
@@ -60,7 +58,7 @@ describe('PlayerService', () => {
 
   describe('findAll', () => {
     it('should return all players', async () => {
-      repository.findAll.mockResolvedValue([mockPlayer]);
+      mockRepository.findAll.mockResolvedValue([mockPlayer]);
 
       const result = await service.findAll();
 
@@ -70,7 +68,7 @@ describe('PlayerService', () => {
 
   describe('findById', () => {
     it('should return a player', async () => {
-      repository.findById.mockResolvedValue(mockPlayer);
+      mockRepository.findById.mockResolvedValue(mockPlayer);
 
       const result = await service.findById(mockPlayer.id);
 
@@ -78,7 +76,7 @@ describe('PlayerService', () => {
     });
 
     it('should throw NotFoundException if not found', async () => {
-      repository.findById.mockResolvedValue(null);
+      mockRepository.findById.mockResolvedValue(null);
 
       await expect(service.findById('invalid-id')).rejects.toThrow(
         NotFoundException,
@@ -88,8 +86,8 @@ describe('PlayerService', () => {
 
   describe('update', () => {
     it('should update a player', async () => {
-      repository.findByNickname.mockResolvedValue(null);
-      repository.update.mockResolvedValue({ ...mockPlayer, level: 7 });
+      mockRepository.findByNickname.mockResolvedValue(null);
+      mockRepository.update.mockResolvedValue({ ...mockPlayer, level: 7 });
 
       const result = await service.update(mockPlayer.id, { level: 7 });
 
@@ -99,7 +97,7 @@ describe('PlayerService', () => {
 
   describe('delete', () => {
     it('should delete a player', async () => {
-      repository.delete.mockResolvedValue(true);
+      mockRepository.delete.mockResolvedValue(true);
 
       await expect(service.delete(mockPlayer.id)).resolves.toBeUndefined();
     });
