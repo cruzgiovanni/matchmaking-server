@@ -5,6 +5,7 @@ import { databaseConfig } from './config/database.config';
 import { PlayerModule } from './modules/player/player.module';
 import { MatchModule } from './modules/match/match.module';
 import { ResultModule } from './modules/result/result.module';
+import { MatchmakingModule } from './modules/matchmaking/matchmaking.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ResultModule } from './modules/result/result.module';
     PlayerModule,
     MatchModule,
     ResultModule,
+    MatchmakingModule,
   ],
   controllers: [],
   providers: [],
