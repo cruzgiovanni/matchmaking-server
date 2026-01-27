@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './config/database.config';
 import { PlayerModule } from './modules/player/player.module';
 import { MatchModule } from './modules/match/match.module';
+import { ResultModule } from './modules/result/result.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MatchModule } from './modules/match/match.module';
     TypeOrmModule.forRoot(databaseConfig()),
     PlayerModule,
     MatchModule,
+    ResultModule,
   ],
   controllers: [],
   providers: [],
