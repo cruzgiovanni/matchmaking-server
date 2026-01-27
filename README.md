@@ -1,98 +1,183 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Matchmaking Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Game matchmaking backend built with NestJS, TypeORM and PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Technologies
 
-## Description
+- Node.js
+- NestJS 11
+- TypeORM
+- PostgreSQL
+- Jest (testing)
+- Swagger (documentation)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Node.js 18+
+- Docker and Docker Compose (for the database)
+
+## Installation
+
+1. Clone the repository:
 
 ```bash
-$ npm install
+git clone <repository-url>
+cd matchmaking-server
 ```
 
-## Compile and run the project
+2. Install dependencies:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+3. Set up environment variables:
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=matchmaking
+DATABASE_PASSWORD=matchmaking123
+DATABASE_NAME=matchmaking
+```
+
+4. Start the database:
+
+```bash
+docker-compose up -d
+```
+
+## Running the Application
+
+```bash
+# development (watch mode)
+npm run start:dev
+
+# production
+npm run start:prod
+```
+
+The application will be available at `http://localhost:3000`.
+
+## API Documentation
+
+Access Swagger documentation at:
+
+```
+http://localhost:3000/api
+```
+
+## Endpoints
+
+### Players
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /players | Create player |
+| GET | /players | List players |
+| GET | /players/:id | Get player by ID |
+| PUT | /players/:id | Update player |
+| DELETE | /players/:id | Delete player |
+| GET | /players/:id/matches | Match history |
+| DELETE | /players/:id/matches | Delete match history |
+| GET | /players/:id/matches/lost | List losses |
+
+### Matches
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /matches | Create match |
+| GET | /matches | List matches |
+| GET | /matches/:id | Get match by ID |
+| DELETE | /matches/:id | Delete match |
+
+### Results
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /results | Create result |
+| GET | /results | List results |
+| GET | /results/:id | Get result by ID |
+| PUT | /results/:id | Update result |
+| DELETE | /results/:id | Delete result |
+
+### Matchmaking
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /matchmaking/connect | Connect player to queue |
+| DELETE | /matchmaking/disconnect | Disconnect player from queue |
+| GET | /matchmaking/queue | Queue status |
+| GET | /matchmaking/queue/:level | Players in queue by level |
+
+## Tests
 
 ```bash
 # unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
+npm run test
 
 # test coverage
-$ npm run test:cov
+npm run test:cov
 ```
 
-## Deployment
+## Architecture
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The project follows the Repository Pattern with dependency inversion (DIP):
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+Controller -> Service -> Repository Interface -> Repository Implementation
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Folder Structure
 
-## Resources
+```
+src/
+  modules/
+    player/
+      dto/
+      entities/
+      repositories/
+      player.controller.ts
+      player.service.ts
+      player.module.ts
+    match/
+    result/
+    matchmaking/
+  config/
+  main.ts
+  app.module.ts
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Scalability Notes
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+The current matchmaking implementation uses an in-memory queue (Map). This approach works for a single server instance but does not scale horizontally.
 
-## Support
+### Problem
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+With multiple server instances, each one would have its own in-memory queue. Players connected to different instances would never be matched.
 
-## Stay in touch
+### Production Solution
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+To support multiple instances and thousands of simultaneous players:
 
-## License
+1. **Redis as centralized queue**: Replace the in-memory Map with Redis. All instances would access the same shared queue.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+Scalable architecture:
+
+[Instance 1] \
+[Instance 2]  --> [Redis - Central Queue] --> Match
+[Instance N] /
+```
+
+2. **Code changes**:
+   - `map.set(id, player)` -> `redis.sadd('queue:level:5', playerId)`
+   - `map.get(id)` -> `redis.smembers('queue:level:5')`
+   - `map.delete(id)` -> `redis.srem('queue:level:5', playerId)`
+
+3. **Additional infrastructure**:
+   - Load Balancer to distribute requests across instances
+   - Connection pooling for the database
+   - Health checks for monitoring
