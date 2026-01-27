@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { ResultService } from './result.service';
-import { RESULT_REPOSITORY } from './repositories/result.repository.interface';
+import {
+  RESULT_REPOSITORY,
+  IResultRepository,
+} from './repositories/result.repository.interface';
 
 describe('ResultService', () => {
   let service: ResultService;
-  let repository: any;
+  let repository: jest.Mocked<IResultRepository>;
 
   const mockResult = {
     id: '123e4567-e89b-12d3-a456-426614174000',

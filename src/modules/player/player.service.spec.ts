@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { PlayerService } from './player.service';
-import { PLAYER_REPOSITORY } from './repositories/player.repository.interface';
+import {
+  PLAYER_REPOSITORY,
+  IPlayerRepository,
+} from './repositories/player.repository.interface';
 
 describe('PlayerService', () => {
   let service: PlayerService;
-  let repository: any;
+  let repository: jest.Mocked<IPlayerRepository>;
 
   const mockPlayer = {
     id: '123e4567-e89b-12d3-a456-426614174000',

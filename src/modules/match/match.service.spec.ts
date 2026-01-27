@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { MatchService } from './match.service';
-import { MATCH_REPOSITORY } from './repositories/match.repository.interface';
+import {
+  MATCH_REPOSITORY,
+  IMatchRepository,
+} from './repositories/match.repository.interface';
 
 describe('MatchService', () => {
   let service: MatchService;
-  let repository: any;
+  let repository: jest.Mocked<IMatchRepository>;
 
   const mockMatch = {
     id: '123e4567-e89b-12d3-a456-426614174000',
