@@ -8,5 +8,5 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   password: process.env.DATABASE_PASSWORD || 'matchmaking123',
   database: process.env.DATABASE_NAME || 'matchmaking',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true, // Em produção, usar migrations
+  synchronize: true,
 });
