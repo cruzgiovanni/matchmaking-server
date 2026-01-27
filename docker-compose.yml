@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: matchmaking-db
+    environment:
+      POSTGRES_USER: matchmaking
+      POSTGRES_PASSWORD: matchmaking123
+      POSTGRES_DB: matchmaking
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
