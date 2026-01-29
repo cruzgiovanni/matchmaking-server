@@ -114,13 +114,105 @@ http://localhost:3000/api
 
 ## Tests
 
+The project uses [Jest](https://jestjs.io/) as the testing framework, integrated with NestJS's `@nestjs/testing` module.
+
+### Test Structure
+
+```
+src/
+  modules/
+    player/
+      player.service.spec.ts      # PlayerService unit tests
+    match/
+      match.service.spec.ts       # MatchService unit tests
+    result/
+      result.service.spec.ts      # ResultService unit tests
+    matchmaking/
+      matchmaking.service.spec.ts # MatchmakingService unit tests
+test/
+  app.e2e-spec.ts                 # End-to-end tests
+  jest-e2e.json                   # Jest E2E configuration
+```
+
+### Available Commands
+
 ```bash
-# unit tests
+# Run all unit tests
 npm run test
 
-# test coverage
+# Run tests in watch mode (re-runs on save)
+npm run test:watch
+
+# Generate coverage report
+npm run test:cov
+
+# Run tests with debugger
+npm run test:debug
+
+# Run end-to-end tests
+npm run test:e2e
+```
+
+### Test Coverage
+
+Unit tests cover the services of each module:
+
+| Module | Tested Scenarios |
+|--------|------------------|
+| Player | Creation, listing, find by ID, update, deletion, nickname conflict |
+| Match | Creation, listing, find by ID, deletion |
+| Result | Creation, listing, find by ID, update, deletion |
+| Matchmaking | Queue connection, same-level player matching, disconnection, queue status |
+
+### Testing Pattern
+
+Tests follow the AAA (Arrange-Act-Assert) pattern and use mocks to isolate dependencies:
+
+```typescript
+describe('PlayerService', () => {
+  let service: PlayerService;
+
+  // Repository mock
+  const mockRepository = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findById: jest.fn(),
+    // ...
+  };
+
+  beforeEach(async () => {
+    // Arrange: setup test module
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PlayerService,
+        { provide: PLAYER_REPOSITORY, useValue: mockRepository },
+      ],
+    }).compile();
+
+    service = module.get<PlayerService>(PlayerService);
+  });
+
+  it('should create a player', async () => {
+    // Arrange
+    mockRepository.findByNickname.mockResolvedValue(null);
+    mockRepository.create.mockResolvedValue(mockPlayer);
+
+    // Act
+    const result = await service.create({ nickname: 'Test', level: 5 });
+
+    // Assert
+    expect(result).toEqual(mockPlayer);
+  });
+});
+```
+
+### Running Tests with Coverage
+
+```bash
 npm run test:cov
 ```
+
+The coverage report is generated in `./coverage/`. Open `coverage/lcov-report/index.html` in a browser for detailed visualization.
 
 ## Architecture
 
